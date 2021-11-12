@@ -1,17 +1,27 @@
 defmodule FreelancerRates do
-  @spec daily_rate(number) :: float
-  def daily_rate(hourly_rate), do: hourly_rate * 8.0
+  @daily_rate 8.0
+  @monthly_billable_days 22
+  def daily_rate(hourly_rate), do: hourly_rate * @daily_rate
 
-  @spec apply_discount(number, number) :: float
-  def apply_discount(before_discount, discount), do: before_discount * (100 - discount) / 100
-
-  @spec monthly_rate(number, number) :: integer
-  def monthly_rate(hourly_rate, discount) do
-    hourly_rate |> daily_rate |> Kernel.*(22) |> apply_discount(discount) |> ceil()
+  def apply_discount(before_discount, discount) do
+    before_discount * (100 - discount) / 100
   end
 
-  @spec days_in_budget(number, number, number) :: float
+  def monthly_rate(hourly_rate, discount) do
+    total_undiscounted = daily_rate(hourly_rate) * @monthly_billable_days
+
+    total_undiscounted
+    |> apply_discount(discount)
+    |> ceil()
+  end
+
   def days_in_budget(budget, hourly_rate, discount) do
-    hourly_rate |> daily_rate |> apply_discount(discount) |> (&(budget / &1)).() |> Float.floor(1)
+    daily_rate_discounted =
+      hourly_rate
+      |> daily_rate()
+      |> apply_discount(discount)
+
+    total_days = budget / daily_rate_discounted
+    Float.floor(total_days, 1)
   end
 end
