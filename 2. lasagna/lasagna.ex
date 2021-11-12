@@ -17,6 +17,7 @@ defmodule Lasagna do
     preparation_time_in_minutes(layers) + time
   end
 
+  @spec alarm() :: String.t()
   def alarm do
     "Ding!"
   end
